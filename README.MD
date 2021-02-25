@@ -1,4 +1,8 @@
 # A Simple and Fast Implementation of Faster R-CNN
+To train using the airplanes dataset, run
+```sh
+python train_vit_detector.py train
+```
 
 ## 1. Introduction
 
