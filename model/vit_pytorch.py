@@ -94,6 +94,7 @@ class ViT(nn.Module):
         num_patches = (image_size // patch_size) ** 2
         patch_dim = channels * patch_size ** 2
         assert pool in {'cls', 'mean'}, 'pool type must be either cls (cls token) or mean (mean pooling)'
+        self.patch_size = patch_size
 
         self.to_patch_embedding = nn.Sequential(
             Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_size, p2 = patch_size),
@@ -127,7 +128,7 @@ class ViT(nn.Module):
         x = self.transformer(x, mask)
         b, _ , c = x.shape
         #print(b,m,c)
-        out = torch.reshape(x[:, 1:, :], (b, h // 16, w // 16, c)).permute(0, 3, 1, 2)
+        out = torch.reshape(x[:, 1:, :], (b, h // self.patch_size, w // self.patch_size, c)).permute(0, 3, 1, 2)
         #print('out', out.shape)
 
         return out
