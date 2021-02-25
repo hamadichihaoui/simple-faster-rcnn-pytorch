@@ -94,7 +94,7 @@ def train(**kwargs):
             img, bbox, label = img.cuda().float(), bbox_.cuda(), label_.cuda()
             trainer.train_step(img, bbox, label, scale)
             tk0.set_postfix(loss_rpn_cls=round(trainer.get_meter_data()['rpn_cls_loss'], 3),
-                            loss_rpn_loc=round(trainer.get_meter_data()['roi_loc_loss'], 3),
+                            loss_rpn_loc=round(trainer.get_meter_data()['rpn_loc_loss'], 3),
                             loss_roi_cls=round(trainer.get_meter_data()['roi_cls_loss'], 3),
                             loss_roi_loc=round(trainer.get_meter_data()['roi_loc_loss'], 3))
 
