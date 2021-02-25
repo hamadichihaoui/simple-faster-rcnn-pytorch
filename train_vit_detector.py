@@ -28,38 +28,6 @@ resource.setrlimit(resource.RLIMIT_NOFILE, (20480, rlimit[1]))
 
 matplotlib.use('agg')
 
-
-
-
-def eval(dataloader, faster_rcnn, test_num=10000):
-    pred_bboxes, pred_labels, pred_scores = list(), list(), list()
-    gt_bboxes, gt_labels = list(), list()
-    tk0 = tqdm(dataloader, total=len(dataloader))
-    for ii, (imgs, sizes, gt_bboxes_, gt_labels_) in tqdm(enumerate(tk0)):
-        sizes = [1024, 1024]
-        pred_bboxes_, pred_labels_, pred_scores_ = faster_rcnn.predict(imgs, [sizes])
-        gt_bboxes += list(gt_bboxes_)
-        gt_labels += list(gt_labels)
-        pred_bboxes += pred_bboxes_
-        pred_labels += pred_labels_
-        pred_scores += pred_scores_
-        if ii == test_num: break
-    cumm_pr = 0.
-    cumm_rec = 0.
-    len_viewed = 0.
-    for k in range(len(pred_bboxes)):
-        dets = pred_bboxes[k]
-        scores = pred_scores[k]
-        targets = gt_bboxes[k]
-        sc_precision, sc_rec, sc_pr = calculate_map([torch.from_numpy(dets).cuda()], torch.from_numpy(scores).cuda(),
-                                                    [targets.cuda()], 1, device)
-        len_viewed = len_viewed + 1
-        cumm_pr = cumm_pr + sc_pr
-        cumm_rec = cumm_rec + sc_rec
-
-    return cumm_pr / len_viewed, cumm_rec / len_viewed
-
-
 def eval(dataloader, faster_rcnn, test_num=10000):
     pred_bboxes, pred_labels, pred_scores = list(), list(), list()
     gt_bboxes, gt_labels = list(), list()
