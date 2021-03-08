@@ -10,6 +10,7 @@ from torchvision.ops import RoIPool
 from model.region_proposal_network import RegionProposalNetwork
 from model.faster_rcnn import FasterRCNN
 from model.vit_pytorch import ViT
+from model.backbone_vit import VisionTransformerExtractor
 from utils import array_tool as at
 from utils.config import opt
 
@@ -17,7 +18,7 @@ from utils.config import opt
 def decom_vgg16():
     # the 30th layer of features is relu of conv5_3
     if opt.caffe_pretrain:
-        model = vgg16(pretrained=False)
+        model = vgg16(pretrained=True)
         if not opt.load_path:
             model.load_state_dict(t.load(opt.caffe_pretrain_path))
     else:
@@ -60,23 +61,23 @@ class FasterRCNNVIT(FasterRCNN):
     feat_stride = 16  # downsample 16x for output of conv5 in vgg16
 
     def __init__(self,
-                 n_fg_class=20,
+                 n_fg_class=1,
                  ratios=[0.5, 1, 2],
-                 anchor_scales=[8, 16, 32]
+                 anchor_scales=[2, 4, 8, 16, 32]
                  ):
         extractor, classifier = decom_vgg16()
-        extractor = ViT(
-            image_size=1024,
-            patch_size=16,
-            num_classes=2,
-            dim=512,
-            depth=6,
-            heads=16,
-            mlp_dim=1024,
-            dropout=0.1,
-            emb_dropout=0.1
-        )
-
+        #extractor = ViT(
+        #    image_size=512,
+         #   patch_size=16,
+        #    num_classes=2,
+        #    dim=512,
+         #   depth=6,
+         #   heads=16,
+         #   mlp_dim=1024,
+          #  dropout=0.1,
+           # emb_dropout=0.1
+        #)
+        extractor = VisionTransformerExtractor()
         rpn = RegionProposalNetwork(
             512, 512,
             ratios=ratios,
