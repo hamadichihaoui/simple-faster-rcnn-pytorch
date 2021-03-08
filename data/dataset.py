@@ -170,14 +170,19 @@ class NewDataset:
 
 
 class TestNewDataset:
-    def __init__(self, data_dir, min_size, max_size):
+    def __init__(self, data_dir, min_size=512, max_size=512):
         self.opt = opt
         self.db = YoloDataset(data_dir)
-
+        self.min_size = min_size
+        self.max_size = max_size
     def __getitem__(self, idx):
         ori_img, bbox, label = self.db.get_example(idx)
-        img = preprocess_fix_size(ori_img, 1024, 1024)
-        return img, ori_img.shape[1:], bbox, label
+        _, H, W = ori_img.shape
+        img = preprocess_fix_size(ori_img, self.min_size, self.max_size)
+        _, o_H, o_W = img.shape
+        scale = o_H / H
+        bbox = util.resize_bbox(bbox, (H, W), (o_H, o_W))
+        return img, [self.min_size, self.max_size], bbox, label
 
     def __len__(self):
         return len(self.db)
@@ -195,3 +200,16 @@ class TestDataset:
 
     def __len__(self):
         return len(self.db)
+
+# if __name__ == '__main__':
+#     import cv2
+#     dataset = NewDataset('/home/hamadic/Kag/global_wheat_detection/coco/train/', 512, 512)
+#     from random import randint
+#     index = randint(0, 3000)
+#     img, bbox, label, scale = dataset[index]
+#     img1= img.transpose((1, 2, 0)).astype(np.float32).copy()
+#     print('img1', img1.shape)
+#     for box in bbox:
+#       print(box)
+#       img1 = cv2.rectangle(img1, (int(box[1]),int(box[0])), (int(box[3]), int(box[2])), (0,0,255), 2)
+#     cv2.imwrite('test.jpg', img1*255)
